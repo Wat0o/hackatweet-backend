@@ -10,7 +10,7 @@ router.post('/', (req, res) => {
         content: req.body.content,
         author: req.body.author,
         likes: 0,
-        isLiked: false
+        likedBy: []
       });
     newTweet.save().then(data =>{
         res.json({result: true, tweet: data})
@@ -27,6 +27,34 @@ router.delete('/:tweetId', (req, res) => {
     Tweet.deleteOne({id: req.params.tweetId}).then(data=>{
         res.json({data: data})
     })
+})
+
+router.put('/', (req, res) => {
+    const author = req.body.author
+    const tweetId = req.body.tweetId
+    Tweet.findOne({id: tweetId}).then(data=> {
+        if(data.likedBy.includes(author)){
+            Tweet.updateOne({id: tweetId}, { $pull: { likedBy: author }, $inc: { likes: -1 } })
+                .then(() => {
+                    Tweet.findOne({id: tweetId}).then(data => {
+                        res.json(data)
+                    })
+                })
+        }else{
+            Tweet.updateOne({id: tweetId}, { $addToSet: { likedBy: author }, $inc: { likes: 1 } })
+            .then(() => {
+                Tweet.findOne({id: tweetId}).then(data => {
+                    res.json(data)
+                })
+            })
+        }
+    })
+})
+
+router.get('/hashtag/:hashtag', (req, res) => {
+    const hashtag = req.params.hashtag.toLowerCase();
+    Tweet.find({content: { $regex: `#${hashtag}`, $options: 'i'}})
+        .then(data=> res.json(data))
 })
 
 module.exports = router
