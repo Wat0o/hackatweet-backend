@@ -23,4 +23,4 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/tweets', tweetsRouter)
 
-module.exports = app;
+module.exports = (req, res) => app(req, res);
