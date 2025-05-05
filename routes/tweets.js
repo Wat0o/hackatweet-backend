@@ -9,6 +9,7 @@ router.post('/', (req, res) => {
         id: Date.now().toString(),
         content: req.body.content,
         author: req.body.author,
+        firstname : req.body.firstname,
         likes: 0,
         likedBy: []
       });
